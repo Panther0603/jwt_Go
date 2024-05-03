@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	customerrors "jwt_use/customErrors"
 	"log"
 	"os"
 
@@ -19,29 +18,61 @@ var (
 
 var Client *mongo.Client = DBSetup()
 
+// func DBSetup() *mongo.Client {
+
+// 	err := godotenv.Load()
+// 	if err != nil {
+// 		log.Panic("error while env file load")
+// 	}
+// 	clientoption := options.Client().ApplyURI("mongodb://development:testpassword@localhost:27017")
+
+// 	client, err := mongo.Connect(context.Background(), clientoption)
+
+// 	if err != nil {
+// 		log.Panicln(customerrors.ErrDBNotConnected)
+// 	}
+
+// 	err = client.Ping(context.Background(), nil)
+
+// 	if err != nil {
+// 		log.Panicln(customerrors.ErrDBNotPinnged)
+// 	}
+// 	log.Println("connected to database")
+
+// 	return client
+// }
+
 func DBSetup() *mongo.Client {
+    err := godotenv.Load()
+    if err != nil {
+        log.Panic("error while loading environment variables")
+    }
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Panic("error while env file load")
-	}
-	clientoption := options.Client().ApplyURI("mongodb://localhost:27017")
+    // Print environment variables for debugging
+    log.Println("MONGO_INITDB_ROOT_USERNAME:", os.Getenv("MONGO_INITDB_ROOT_USERNAME"))
+    log.Println("MONGO_INITDB_ROOT_PASSWORD:", os.Getenv("MONGO_INITDB_ROOT_PASSWORD"))
 
-	client, err := mongo.Connect(context.Background(), clientoption)
+    // Construct MongoDB connection string
+    uri := "mongodb://" + os.Getenv("MONGO_INITDB_ROOT_USERNAME") + ":" + os.Getenv("MONGO_INITDB_ROOT_PASSWORD") + "@mongo:27017"
+    log.Println("Connection String:", uri)
 
-	
-	if err != nil {
-		log.Panicln(customerrors.ErrDBNotConnected)
-	}
+    // Set client options
+    clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
-	err = client.Ping(context.Background(), nil)
+    // Connect to MongoDB
+    client, err := mongo.Connect(context.Background(), clientOptions)
+    if err != nil {
+        log.Panicln(ErrDBNotConnected)
+    }
 
-	if err != nil {
-		log.Panicln(customerrors.ErrDBNotPinnged)
-	}
-	log.Println("connected to database")
+    // Check if connected to MongoDB
+    err = client.Ping(context.Background(), nil)
+    if err != nil {
+        log.Panicln(ErrDBNotPinnged)
+    }
 
-	return client
+    log.Println("Connected to MongoDB")
+    return client
 }
 
 // fetching the user collection

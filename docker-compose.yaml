@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5.0.3
+    ports:
+      - '27017:27017'
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - '27018:27018'
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+
+  go_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '6002:6002'
+    depends_on:
+      - mongo
