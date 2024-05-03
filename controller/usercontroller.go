@@ -37,6 +37,7 @@ func CreateUser() gin.HandlerFunc {
 		getUser.UserId = uuid.NewString()
 		getUser.UpdatedAt = time.Now()
 		getUser.CreatedAt = time.Now()
+		getUser.Password = HashPassword(getUser.Password)
 
 		// Now checking if any document is present in the collection
 		count, err := UserCollection.CountDocuments(ctx, bson.M{"username": getUser.Username})
